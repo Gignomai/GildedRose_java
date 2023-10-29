@@ -41,16 +41,17 @@ public class Inventory {
     }
 
     private void updateLegendary(Item item) {
-        System.out.println("This item is legendary " + item.getName());
+        System.out.println("This item is legendary " + item.getName() + ", so do nothing.");
     }
 
     private void updateBrie(Item item) {
+        item.setSellIn(item.getSellIn() - 1);
+
         if (item.getQuality() < 50){
             item.setQuality(item.getQuality() + 1);
-        }
-        dailySellInReduction(item);
-        if (item.getSellIn() < 0 && item.getQuality() < 50) {
-            item.setQuality(item.getQuality() + 1);
+            if (item.getSellIn() < 0) {
+                item.setQuality(item.getQuality() + 1);
+            }
         }
     }
 
@@ -65,47 +66,39 @@ public class Inventory {
                 item.setQuality(item.getQuality() + 1);
             }
         }
-        dailySellInReduction(item);
+
+        item.setSellIn(item.getSellIn() - 1);
+
         if (item.getSellIn() < 0) {
             item.setQuality(0);
         }
     }
 
     private void updateConjured(Item item) {
-        if (item.getQuality() > 0) {
-            item.setQuality(item.getQuality() - 1);
-        }
-        if (item.getQuality() > 0) {
-            item.setQuality(item.getQuality() - 1);
-        }
+        item.setSellIn(item.getSellIn() - 1);
 
-        dailySellInReduction(item);
+        decreaseQualityIfGreaterThanZero(item);
+        decreaseQualityIfGreaterThanZero(item);
 
         if (item.getSellIn() < 0) {
-            if (item.getQuality() > 0) {
-                item.setQuality(item.getQuality() - 1);
-            }
-            if (item.getQuality() > 0) {
-                item.setQuality(item.getQuality() - 1);
-            }
+            decreaseQualityIfGreaterThanZero(item);
+            decreaseQualityIfGreaterThanZero(item);
         }
     }
 
     private void updateDefault(Item item) {
-        if (item.getQuality() > 0) {
-            item.setQuality(item.getQuality() - 1);
-        }
-        dailySellInReduction(item);
+        item.setSellIn(item.getSellIn() - 1);
+
+        decreaseQualityIfGreaterThanZero(item);
+
         if (item.getSellIn() < 0) {
-            if (item.getQuality() > 0) {
-                item.setQuality(item.getQuality() - 1);
-            }
+            decreaseQualityIfGreaterThanZero(item);
         }
     }
 
-    private void dailySellInReduction(Item item) {
-        if (!item.getName().equals(SULFURAS_HAND_OF_RAGNAROS)) {
-            item.setSellIn(item.getSellIn() - 1);
+    private static void decreaseQualityIfGreaterThanZero(Item item) {
+        if (item.getQuality() > 0) {
+            item.setQuality(item.getQuality() - 1);
         }
     }
 
