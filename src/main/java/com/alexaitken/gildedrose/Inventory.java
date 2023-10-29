@@ -5,6 +5,9 @@ public class Inventory {
     public static final String SULFURAS_HAND_OF_RAGNAROS = "Sulfuras, Hand of Ragnaros";
     public static final String AGED_BRIE = "Aged Brie";
     public static final String BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT = "Backstage passes to a TAFKAL80ETC concert";
+    public static final String CONJURED_MANA_CAKE = "Conjured Mana Cake";
+    public static final String ELIXIR_OF_THE_MONGOOSE = "Elixir of the Mongoose";
+    public static final String DEXTERITY_VEST = "+5 Dexterity Vest";
     private Item[] items;
 
     public Inventory(Item[] items) {
@@ -15,53 +18,88 @@ public class Inventory {
     public Inventory() {
         super();
         items = new Item[]{
-                new Item("+5 Dexterity Vest", 10, 20),
+                new Item(DEXTERITY_VEST, 10, 20),
                 new Item(AGED_BRIE, 2, 0),
-                new Item("Elixir of the Mongoose", 5, 7),
+                new Item(ELIXIR_OF_THE_MONGOOSE, 5, 7),
                 new Item(SULFURAS_HAND_OF_RAGNAROS, 0, 80),
                 new Item(BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT, 15, 20),
-                new Item("Conjured Mana Cake", 3, 6)
+                new Item(CONJURED_MANA_CAKE, 3, 6)
         };
 
     }
 
     public void updateQuality() {
         for (Item item : items) {
-            dailyQualityReduction(item);
-
-            dailySellInReduction(item);
-
-            reduceQualityOfNonSoldItems(item);
+            switch (item.getName()) {
+                case AGED_BRIE -> updateBrie(item);
+                case BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT -> updateBackStagePass(item);
+                case CONJURED_MANA_CAKE -> updateConjured(item);
+                case SULFURAS_HAND_OF_RAGNAROS -> updateLegendary(item);
+                default -> updateDefault(item);
+            }
         }
     }
 
-    private void dailyQualityReduction(Item item) {
-        if (!item.getName().equals(AGED_BRIE)
-                && !item.getName().equals(BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT)
-                && !item.getName().equals(SULFURAS_HAND_OF_RAGNAROS)) {
+    private void updateLegendary(Item item) {
+        System.out.println("This item is legendary " + item.getName());
+    }
+
+    private void updateBrie(Item item) {
+        if (item.getQuality() < 50){
+            item.setQuality(item.getQuality() + 1);
+        }
+        dailySellInReduction(item);
+        if (item.getSellIn() < 0 && item.getQuality() < 50) {
+            item.setQuality(item.getQuality() + 1);
+        }
+    }
+
+    private void updateBackStagePass(Item item) {
+        if (item.getQuality() < 50){
+            item.setQuality(item.getQuality() + 1);
+            if (item.getSellIn() < 11 && item.getQuality() < 50) {
+                item.setQuality(item.getQuality() + 1);
+            }
+
+            if (item.getSellIn() < 6 && item.getQuality() < 50) {
+                item.setQuality(item.getQuality() + 1);
+            }
+        }
+        dailySellInReduction(item);
+        if (item.getSellIn() < 0) {
+            item.setQuality(0);
+        }
+    }
+
+    private void updateConjured(Item item) {
+        if (item.getQuality() > 0) {
+            item.setQuality(item.getQuality() - 1);
+        }
+        if (item.getQuality() > 0) {
+            item.setQuality(item.getQuality() - 1);
+        }
+
+        dailySellInReduction(item);
+
+        if (item.getSellIn() < 0) {
             if (item.getQuality() > 0) {
                 item.setQuality(item.getQuality() - 1);
             }
-            if (item.getQuality() > 0 && item.getName().toLowerCase().contains("conjured")) {
+            if (item.getQuality() > 0) {
                 item.setQuality(item.getQuality() - 1);
-            }
-        } else {
-            if (item.getQuality() < 50){
-                item.setQuality(item.getQuality() + 1);
-                if (item.getName().equals(BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT)) {
-                    updateQualityForBackstagePass(item);
-                }
             }
         }
     }
 
-    private static void updateQualityForBackstagePass(Item item) {
-        if (item.getSellIn() < 11 && item.getQuality() < 50) {
-            item.setQuality(item.getQuality() + 1);
+    private void updateDefault(Item item) {
+        if (item.getQuality() > 0) {
+            item.setQuality(item.getQuality() - 1);
         }
-
-        if (item.getSellIn() < 6 && item.getQuality() < 50) {
-            item.setQuality(item.getQuality() + 1);
+        dailySellInReduction(item);
+        if (item.getSellIn() < 0) {
+            if (item.getQuality() > 0) {
+                item.setQuality(item.getQuality() - 1);
+            }
         }
     }
 
@@ -71,21 +109,4 @@ public class Inventory {
         }
     }
 
-    private void reduceQualityOfNonSoldItems(Item item) {
-        if (item.getSellIn() < 0 && !item.getName().equals(SULFURAS_HAND_OF_RAGNAROS)) {
-            if (item.getName().equals(AGED_BRIE) && item.getQuality() < 50) {
-                item.setQuality(item.getQuality() + 1);
-            }
-            if (item.getName().equals(BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT)) {
-                item.setQuality(0);
-            }
-            if (item.getQuality() > 0) {
-                item.setQuality(item.getQuality() - 1);
-            }
-            if (item.getQuality() > 0 && item.getName().toLowerCase().contains("conjured")) {
-                item.setQuality(item.getQuality() - 1);
-            }
-        }
-
-    }
 }
