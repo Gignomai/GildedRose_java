@@ -154,7 +154,6 @@ public class InventoryTest {
     @Test
     void shouldLowerQualityDoubleFastIfItemIsConjured() {
         Item conjuredItem = new Item("Conjured Item", 5, 10);
-
         Inventory sut = new Inventory(new Item[]{conjuredItem});
 
         sut.updateQuality();
@@ -165,11 +164,21 @@ public class InventoryTest {
     @Test
     void shouldLowerQualityDoubleFastAgainIfItemIsConjuredAndSellInDateIsZero() {
         Item conjuredItem = new Item("Conjured Item", 0, 10);
-
         Inventory sut = new Inventory(new Item[]{conjuredItem});
 
         sut.updateQuality();
 
         assertEquals(6, conjuredItem.getQuality());
     }
+
+    @Test
+    void shouldNotLowerQualityBelowZeroIfItemIsConjuredAndSellInDateIsZero() {
+        Item conjuredItem = new Item("Conjured Item", -1, 1);
+        Inventory sut = new Inventory(new Item[]{conjuredItem});
+
+        sut.updateQuality();
+
+        assertEquals(0, conjuredItem.getQuality());
+    }
+
 }

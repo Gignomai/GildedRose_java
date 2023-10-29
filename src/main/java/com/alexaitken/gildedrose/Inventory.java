@@ -2,6 +2,9 @@ package com.alexaitken.gildedrose;
 
 public class Inventory {
 
+    public static final String SULFURAS_HAND_OF_RAGNAROS = "Sulfuras, Hand of Ragnaros";
+    public static final String AGED_BRIE = "Aged Brie";
+    public static final String BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT = "Backstage passes to a TAFKAL80ETC concert";
     private Item[] items;
 
     public Inventory(Item[] items) {
@@ -13,69 +16,76 @@ public class Inventory {
         super();
         items = new Item[]{
                 new Item("+5 Dexterity Vest", 10, 20),
-                new Item("Aged Brie", 2, 0),
+                new Item(AGED_BRIE, 2, 0),
                 new Item("Elixir of the Mongoose", 5, 7),
-                new Item("Sulfuras, Hand of Ragnaros", 0, 80),
-                new Item("Backstage passes to a TAFKAL80ETC concert", 15, 20),
+                new Item(SULFURAS_HAND_OF_RAGNAROS, 0, 80),
+                new Item(BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT, 15, 20),
                 new Item("Conjured Mana Cake", 3, 6)
         };
 
     }
 
     public void updateQuality() {
-        for (int i = 0; i < items.length; i++) {
-            if (items[i].getName() != "Aged Brie"
-                    && items[i].getName() != "Backstage passes to a TAFKAL80ETC concert") {
-                if (items[i].getQuality() > 0) {
-                    if (items[i].getName().toLowerCase().contains("conjured")) {
-                        items[i].setQuality(items[i].getQuality() - 2);
-                    } else if (items[i].getName() != "Sulfuras, Hand of Ragnaros") {
-                        items[i].setQuality(items[i].getQuality() - 1);
-                    }
-                }
-            } else {
-                if (items[i].getQuality() < 50) {
-                    items[i].setQuality(items[i].getQuality() + 1);
+        for (Item item : items) {
+            dailyQualityReduction(item);
 
-                    if (items[i].getName() == "Backstage passes to a TAFKAL80ETC concert") {
-                        if (items[i].getSellIn() < 11) {
-                            if (items[i].getQuality() < 50) {
-                                items[i].setQuality(items[i].getQuality() + 1);
-                            }
-                        }
+            dailySellInReduction(item);
 
-                        if (items[i].getSellIn() < 6) {
-                            if (items[i].getQuality() < 50) {
-                                items[i].setQuality(items[i].getQuality() + 1);
-                            }
-                        }
-                    }
-                }
+            reduceQualityOfNonSoldItems(item);
+        }
+    }
+
+    private void dailyQualityReduction(Item item) {
+        if (!item.getName().equals(AGED_BRIE)
+                && !item.getName().equals(BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT)
+                && !item.getName().equals(SULFURAS_HAND_OF_RAGNAROS)) {
+            if (item.getQuality() > 0) {
+                item.setQuality(item.getQuality() - 1);
             }
-
-            if (items[i].getName() != "Sulfuras, Hand of Ragnaros") {
-                items[i].setSellIn(items[i].getSellIn() - 1);
+            if (item.getQuality() > 0 && item.getName().toLowerCase().contains("conjured")) {
+                item.setQuality(item.getQuality() - 1);
             }
-
-            if (items[i].getSellIn() < 0) {
-                if (items[i].getName() != "Aged Brie") {
-                    if (items[i].getName() != "Backstage passes to a TAFKAL80ETC concert") {
-                        if (items[i].getQuality() > 0) {
-                            if (items[i].getName().toLowerCase().contains("conjured")) {
-                                items[i].setQuality(items[i].getQuality() - 2);
-                            } else if (items[i].getName() != "Sulfuras, Hand of Ragnaros") {
-                                items[i].setQuality(items[i].getQuality() - 1);
-                            }
-                        }
-                    } else {
-                        items[i].setQuality(0);
-                    }
-                } else {
-                    if (items[i].getQuality() < 50) {
-                        items[i].setQuality(items[i].getQuality() + 1);
-                    }
+        } else {
+            if (item.getQuality() < 50){
+                item.setQuality(item.getQuality() + 1);
+                if (item.getName().equals(BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT)) {
+                    updateQualityForBackstagePass(item);
                 }
             }
         }
+    }
+
+    private static void updateQualityForBackstagePass(Item item) {
+        if (item.getSellIn() < 11 && item.getQuality() < 50) {
+            item.setQuality(item.getQuality() + 1);
+        }
+
+        if (item.getSellIn() < 6 && item.getQuality() < 50) {
+            item.setQuality(item.getQuality() + 1);
+        }
+    }
+
+    private void dailySellInReduction(Item item) {
+        if (!item.getName().equals(SULFURAS_HAND_OF_RAGNAROS)) {
+            item.setSellIn(item.getSellIn() - 1);
+        }
+    }
+
+    private void reduceQualityOfNonSoldItems(Item item) {
+        if (item.getSellIn() < 0 && !item.getName().equals(SULFURAS_HAND_OF_RAGNAROS)) {
+            if (item.getName().equals(AGED_BRIE) && item.getQuality() < 50) {
+                item.setQuality(item.getQuality() + 1);
+            }
+            if (item.getName().equals(BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT)) {
+                item.setQuality(0);
+            }
+            if (item.getQuality() > 0) {
+                item.setQuality(item.getQuality() - 1);
+            }
+            if (item.getQuality() > 0 && item.getName().toLowerCase().contains("conjured")) {
+                item.setQuality(item.getQuality() - 1);
+            }
+        }
+
     }
 }
