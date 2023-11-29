@@ -186,4 +186,4 @@ public class InventoryTest {
         assertEquals(0, conjuredItem.getQuality());
     }
 
-}
+} 
